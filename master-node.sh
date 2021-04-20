@@ -6,7 +6,7 @@
 sudo apt-get remove docker docker-engine docker.io containerd runc
 sudo apt-get purge docker-ce docker-ce-cli containerd.io
 sudo rm -rf /var/lib/docker
-sudo kubeadm reset
+sudo kubeadm reset # Also remove config files at $HOME/.kube
 sudo apt-get purge kubeadm kubectl kubelet kubernetes-cni kube*
 sudo rm -rf ~/.kube
 sudo apt-get autoremove
@@ -57,16 +57,19 @@ sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
-# For master node creation
+# For master node creation (Using weave plugin)
 sudo kubeadm init # Save 'kubeadm join' command given in output for worker node setup
-
-# Set kubectl config
-mkdir -p $HOME/.kube
+mkdir -p $HOME/.kube # Set kubectl config
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
+sudo kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')" --validate=false # Add networking plugin deamonSet
 
-# Add networking plugin deamonSet (Can use flannel etc. also instead of weave)
-sudo kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')" --validate=false
+# For master node creation (Using flannel plugin)
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 # Save 'kubeadm join' command given in output for worker node setup
+sudo cp /etc/kubernetes/admin.conf $HOME/ # Set kubectl config
+sudo chown $(id -u):$(id -g) $HOME/admin.conf
+export KUBECONFIG=$HOME/admin.conf
+kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml # Add networking plugin deamonSet
 
 # Add NVIDIA device plugin
 kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.7.3/nvidia-device-plugin.yml 

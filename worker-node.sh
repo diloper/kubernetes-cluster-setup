@@ -29,7 +29,7 @@ sudo apt install linux-headers-$(uname -r)
 sudo apt-get remove docker docker-engine docker.io containerd runc
 sudo apt-get purge docker-ce docker-ce-cli containerd.io
 sudo rm -rf /var/lib/docker
-sudo kubeadm reset
+sudo kubeadm reset # Also remove network config files at /etc/cni/net.d
 sudo apt-get purge kubeadm kubectl kubelet kubernetes-cni kube*
 sudo rm -rf ~/.kube
 sudo apt-get autoremove
