@@ -57,6 +57,9 @@ sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
+sudo rm /etc/containerd/config.toml
+sudo systemctl restart containerd
+
 # For master node creation (Using flannel plugin)
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16 # Save 'kubeadm join' command given in output for worker node setup
 sudo cp /etc/kubernetes/admin.conf $HOME/ # Set kubectl config
